@@ -1,15 +1,19 @@
 # IndexBuilder
 To automate portfolios building based on different factors.
 
-Currently only composed of one function to build a portfolio giving amounts of shares to purchase of each selected stock based on the given principal, for the portfolio to be balanced based on selected stock market capitalizations.
+Currently composed of
 
-Personally used to simulate up to 85% of the S&P/TSX Capped Financials Index (Stocks representing the Top 85% Capped Weights of the index).
-Function only usable on TSX, and TSX-V tickers.
+- Function to build a portfolio based on market capitalization of the selected tickers;
+- Function 2.0 includes 36 month Beta, P/E Ratio and Dividend Ratio.
+- Evaluator Function to give values of 36 month Beta, P/E Ratio, Dividend Ratio & Annual Dividend Payout for global portfolio built from Function 2.0
 
-Planned ahead is to create a function for US tickers, and possibly a function for having both possible markets.
-May also have different options added outside of Capped Indices to simulate (yield, %yield, P/E, etc...).
+Personally used to simulate the upper 85% of the S&P/TSX Capped Financials Index.
+Function only usable on TSX, and TSX-V tickers(notation as aaa-T or aaa-X respectively, where aaa is the ticker chosen).
 
-Future code, and functions created will be used for Random Portfolio creation in parts of Index-vs-Equity-Risk-Analysis project (found at https://github.com/dpeslherbe/Index-vs-Equity-Risk-Analysis).
+Planned ahead is to create similar functions for US tickers, and possibly functions for having both possible markets.
+Future functions may include other weighting methods, as opposed to simple market capitalization weighting used here).
+
+Future code, and functions created may be used for Random Portfolio creation in parts of Index-vs-Equity-Risk-Analysis project (found at https://github.com/dpeslherbe/Index-vs-Equity-Risk-Analysis).
 
 ## *Disclaimer*
 
