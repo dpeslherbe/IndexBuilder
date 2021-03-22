@@ -8,6 +8,7 @@ Currently composed of
 - Evaluator Function to give values of Beta, P/E Ratio, Dividend Ratio & Annual Dividend Payout for global portfolio built from Function 2.0
 - Function 3.0 to scrape from either CAN or US stocks (Market needs to be specified)
 - Evaluator Function 3.0 to follow up on changes from Function 3.0
+- Function 3.1 (now scrapes Insider Ownership for both CAN and US stocks)
 
 Personally used to simulate the upper 85% of the S&P/TSX Capped Financials Index.
 Function only usable on TSX, and TSX-V tickers(notation as aaa-T or aaa-X respectively, where aaa is the ticker chosen).
