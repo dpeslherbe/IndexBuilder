@@ -436,8 +436,145 @@ IndexEvaluator3.0()
 ## US Market, but also that there is more opportunity for Growth, as well as Risk
 ## as the Beta is higher, and the Dividend Ratio is lower compared to CAN Market.
 
+## IndexBuilder 3.1 is a simple upgrade to CAN Market Scraping: For the US Market,
+## Builder3.0 also scraped Insider Ownership (this is useful when using free-float
+## market cap weighting vs true market cap weighting). Now Builder3.1 also scrapes
+## Insider Ownership percentage for CAN tickers. The Goal is for future Builder/Evaluator
+## Functions to recommend portfolios based on other weighting methods
 
+IndexBuilder3.1 <- function(principal, tickers, market){
+  if(market == 'CAN'){
+    marketcaptable <- c()
+    for (i in 1:length(tickers)) {
+      url <- paste0('https://www.theglobeandmail.com/investing/markets/stocks/', tickers[i])
+      page <- read_html(url)
+      nodes <- page %>% html_nodes('#fBsZNE1qvBE4os .barchart-overview-field:nth-child(8) barchart-field , #fundamentals .barchart-overview-field:nth-child(3) .bc-percent-change , .col-lg-6+ .col-lg-6 .barchart-overview-field:nth-child(2) barchart-field , #fundamentals .col-lg-6:nth-child(1) .barchart-overview-field:nth-child(3) barchart-field')
+      Symbol <- nodes[1] %>% html_attr('symbol')
+      MarketCap <- nodes[1] %>% html_attr('value')
+      MarketCap <- as.numeric(gsub(',', '', MarketCap))
+      Beta <- nodes[2] %>% html_attr('value')
+      Beta <- as.numeric(Beta)
+      PERatio <- nodes[3] %>% html_attr('value')
+      PERatio <- as.numeric(PERatio)
+      if(is.na(PERatio) == TRUE){
+        extra.node <- page %>% html_nodes('.col-lg-6+ .col-lg-6 .barchart-overview-field:nth-child(1) barchart-field')
+        PERatio <- extra.node %>% html_attr('value')
+        PERatio <- as.numeric(PERatio)
+      }
+      DividendRatio <- nodes[4] %>% html_attr('value')
+      DividendRatio <- as.numeric(gsub('%', '', DividendRatio))
+      if(is.na(DividendRatio) == TRUE){
+        DividendRatio <- 0
+      }
+      Price <- page %>% html_nodes('#fBsZNE1qvBE4os .open-price-value') %>% html_text()
+      Price <- as.numeric(Price)
+      extra.url <- paste0('https://finance.yahoo.com/quote/', Symbol, '/key-statistics?p=', Symbol)
+      extra.page <- read_html(extra.url)
+      extra.node2 <- html_table(extra.page)
+      InsiderOwnership <- as.numeric(gsub('%', '', extra.node2[[3]][5,2]))
+      if(is.na(InsiderOwnership) == TRUE){
+        InsiderOwnership <- 0
+      }
+      if(length(marketcaptable) != 0){
+        marketcaptable <- rbind(marketcaptable, c(Symbol, MarketCap, Beta, PERatio, DividendRatio, Price, InsiderOwnership))
+      }
+      if(length(marketcaptable) == 0){
+        marketcaptable <- c(marketcaptable, Symbol, MarketCap, Beta, PERatio, DividendRatio, Price, InsiderOwnership)
+      }
+    }
+    marketcaptable <- data.frame(marketcaptable)
+    for (j in 2:(dim(marketcaptable)[2])) {
+      marketcaptable[,j] <- as.numeric(marketcaptable[,j])
+    }
+    marketcaptable <- cbind(marketcaptable, as.numeric(c(marketcaptable[,2]/sum(marketcaptable[,2]))))
+    rownames(marketcaptable) <- tickers
+    colnames(marketcaptable) <- c('Ticker', 'Market Cap in M', 'Beta', 'P/E Ratio', 'Dividend Ratio', 'Price', 'Insider Ownership', 'Capped Weight')
+    shares <- rep(0, (dim(marketcaptable)[1]))
+    value <- rep(0, (dim(marketcaptable)[1]))
+    for (i in 1:(dim(marketcaptable)[1])) {
+      ticker.principal <- principal*marketcaptable$`Capped Weight`[i]
+      shares[i] <- ticker.principal/marketcaptable$`Price`[i]
+      shares[i] <- floor(shares[i])
+      value[i] <- shares[i]*marketcaptable$`Price`[i]
+    }
+    marketcaptable <- cbind(marketcaptable, shares, value)
+    marketcaptable <-  cbind(marketcaptable, c(marketcaptable$value/sum(marketcaptable$value)))
+    colnames(marketcaptable) <- c('Ticker', 'Market Cap in M', 'Beta', 'P/E Ratio', 'Dividend Ratio', 'Price', 'Insider Ownership', 'Capped Weight', 'Shares to own', 'Value of shares', 'Actual Weight')
+    print(marketcaptable)
+    print(marketcaptable[which(marketcaptable$`Shares to own` != 0),])
+    sum(marketcaptable$`Capped Weight`[which(marketcaptable$`Shares to own` != 0)])
+    Data.Index <<- marketcaptable[which(marketcaptable$`Shares to own` != 0),]
+  }
+  if(market == 'USD'){
+    marketcaptable <- c()
+    for (i in 1:length(tickers)) {
+      url <- c(paste0('https://finviz.com/quote.ashx?t=', tickers[i]))
+      page <- read_html(url)
+      nodes <- page %>% html_nodes('.snapshot-td2 b')
+      InsiderOwnership <- nodes[4] %>% html_text()
+      InsiderOwnership <- as.numeric(gsub('%', '', InsiderOwnership))
+      if(is.na(InsiderOwnership) == TRUE){
+        InsiderOwnership <- 0
+      }
+      MarketCap <- nodes[7] %>% html_text()
+      if(substr(MarketCap, nchar(MarketCap), nchar(MarketCap)) != 'B'){
+        MarketCap <- as.numeric(substr(MarketCap, 1, nchar(MarketCap)-1))
+      }
+      if(substr(MarketCap, nchar(MarketCap), nchar(MarketCap)) == 'B'){
+        MarketCap <- 1000 * as.numeric(substr(MarketCap, 1, nchar(MarketCap)-1))
+      }
+      PERatio <- nodes[8] %>% html_text()
+      PERatio <- as.numeric(PERatio)
+      if(is.na(PERatio) == TRUE){
+        PERatio <- nodes[2] %>% html_text()
+        PERatio <- as.numeric(PERatio)
+      }
+      Beta <- nodes[42] %>% html_text()
+      if(Beta == '-'){
+        Beta <- 1
+      }
+      Beta <- as.numeric(Beta)
+      DividendRatio <- nodes[43] %>% html_text()
+      if(DividendRatio == '-'){
+        DividendRatio <- 0
+      }
+      DividendRatio <- as.numeric(gsub('%', '', DividendRatio))
+      Price <- nodes[66] %>% html_text()
+      Price <- as.numeric(Price)
+      if(length(marketcaptable) != 0){
+        marketcaptable <- rbind(marketcaptable, c(tickers[i], MarketCap, Beta, PERatio, DividendRatio, Price, InsiderOwnership))
+      }
+      if(length(marketcaptable) == 0){
+        marketcaptable <- c(marketcaptable, tickers[i], MarketCap, Beta, PERatio, DividendRatio, Price, InsiderOwnership)
+      }
+    }
+    marketcaptable <- data.frame(marketcaptable)
+    for (j in 2:(dim(marketcaptable)[2])) {
+      marketcaptable[,j] <- as.numeric(marketcaptable[,j])
+    }
+    marketcaptable <- cbind(marketcaptable, as.numeric(c(marketcaptable[,2]/sum(marketcaptable[,2]))))
+    rownames(marketcaptable) <- tickers
+    colnames(marketcaptable) <- c('Ticker', 'Market Cap in M', 'Beta', 'P/E Ratio', 'Dividend Ratio', 'Price', 'Insider Ownership', 'Capped Weight')
+    shares <- rep(0, (dim(marketcaptable)[1]))
+    value <- rep(0, (dim(marketcaptable)[1]))
+    for (i in 1:(dim(marketcaptable)[1])) {
+      ticker.principal <- principal*marketcaptable$`Capped Weight`[i]
+      shares[i] <- ticker.principal/marketcaptable$`Price`[i]
+      shares[i] <- floor(shares[i])
+      value[i] <- shares[i]*marketcaptable$`Price`[i]
+    }
+    marketcaptable <- cbind(marketcaptable, shares, value)
+    marketcaptable <-  cbind(marketcaptable, c(marketcaptable$value/sum(marketcaptable$value)))
+    colnames(marketcaptable) <- c('Ticker', 'Market Cap in M', 'Beta', 'P/E Ratio', 'Dividend Ratio', 'Price', 'Insider Ownership', 'Capped Weight', 'Shares to own', 'Value of shares', 'Actual Weight')
+    print(marketcaptable)
+    print(marketcaptable[which(marketcaptable$`Shares to own` != 0),])
+    sum(marketcaptable$`Capped Weight`[which(marketcaptable$`Shares to own` != 0)])
+    Data.Index <<- marketcaptable[which(marketcaptable$`Shares to own` != 0),]
+  }
+}
 
+## Example
 
-
+IndexBuilder3.1(10000, Financials, 'CAN')
+IndexEvaluator3.0()
 
