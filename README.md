@@ -21,6 +21,7 @@ The following functions are inside the file IndexBuilder-deprecated:
 - ~~IndexEvaluator3.0(); Function 3.0 to follow up on changes from Function 3.0~~
 - ~~IndexBuilder3.1(); Function 3.1 (now scrapes Insider Ownership for both CAN and US stocks)~~
 - ~~IndexBuilder4.0(); Function 4.0 (Choice of Market Cap or Free-Float Market Cap as weighting method)~~
+
 They are kept for documentation purposes, but are no longer functional.
 
 Personally used to simulate the upper 85% of the S&P/TSX Capped Financials Index.
