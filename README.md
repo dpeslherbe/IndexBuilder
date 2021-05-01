@@ -1,21 +1,29 @@
 # IndexBuilder
 To automate portfolios building based on different factors.
 
-Currently composed of
+Currently composed of:
 
-- Function to build a portfolio based on market capitalization of the selected tickers;
-- Function 2.0 includes Beta, P/E Ratio and Dividend Ratio.
-- Evaluator Function to give values of Beta, P/E Ratio, Dividend Ratio & Annual Dividend Payout for global portfolio built from Function 2.0
-- Function 3.0 to scrape from either CAN or US stocks (Market needs to be specified)
-- Evaluator Function 3.0 to follow up on changes from Function 3.0
-- Function 3.1 (now scrapes Insider Ownership for both CAN and US stocks)
-- Function 4.0 (Choice of Market Cap or Free-Float Market Cap as weighting method)
+- IndexScraper(), a function that scrapes Currency, Price, Market Capitalization, 5-Year Monthly Beta, Price to Earnings Ratio, Earnings Per Share, Dividend Yield, and Insider Ownership percentage from Yahoo Finance. Price scraped is real-time during Market Hours and close price outside of Market Hours.
+- CurrencyScaper(), a function that scrapes the Exchange Rate from Yahoo Finance (Real-Time Exchange Rate).
+- IndexBuilder(), a function that will:
+  1. Convert Prices and Market Capitalization Values to chosen currency (either USD or CAD)
+  2. Calculate the appropriate weighting of the chosen tickers based on either Full Market Capitalization or Free Float Market Capitalization (Work In Progress)
+  3. Calculate the number of shares necessary to approximate the chosen tickers and their corresponding weighting based on principal available for investing (Work In Progress)
+
+Note that the ticker syntax must be the same used on Yahoo Finance.
+No plans are made to include other currencies outside of USD, CAD at this point.
+
+The following functions are inside the file IndexBuilder-deprecated:
+- ~~IndexBuilder(); Function to build a portfolio based on market capitalization of the selected tickers;~~
+- ~~IndexBuilder2.0(); Function 2.0 includes Beta, P/E Ratio and Dividend Ratio.~~
+- ~~IndexEvaluator2.0(); Function to give values of Beta, P/E Ratio, Dividend Ratio & Annual Dividend Payout for global portfolio built from Function 2.0~~
+- ~~IndexBuilder3.0(); Function 3.0 to scrape from either CAN or US stocks (Market needs to be specified)~~
+- ~~IndexEvaluator3.0(); Function 3.0 to follow up on changes from Function 3.0~~
+- ~~IndexBuilder3.1(); Function 3.1 (now scrapes Insider Ownership for both CAN and US stocks)~~
+- ~~IndexBuilder4.0(); Function 4.0 (Choice of Market Cap or Free-Float Market Cap as weighting method)~~
+They are kept for documentation purposes, but are no longer functional.
 
 Personally used to simulate the upper 85% of the S&P/TSX Capped Financials Index.
-Function only usable on TSX, and TSX-V tickers(notation as aaa-T or aaa-X respectively, where aaa is the ticker chosen).
-
-Planned ahead is to create similar functions for US tickers, and possibly functions for having both possible markets.
-Future functions may include other weighting methods, as opposed to simple market capitalization weighting used here).
 
 Future code, and functions created may be used for Random Portfolio creation in parts of Index-vs-Equity-Risk-Analysis project (found at https://github.com/dpeslherbe/Index-vs-Equity-Risk-Analysis).
 
