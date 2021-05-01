@@ -10,7 +10,10 @@ Currently composed of:
   2. Calculate the appropriate weighting of the chosen tickers based on either Full Market Capitalization or Free Float Market Capitalization (Work In Progress)
   3. Calculate the number of shares necessary to approximate the chosen tickers and their corresponding weighting based on principal available for investing (Work In Progress)
 
+Functions are inside the IndexBuilder file.
+
 Note that the ticker syntax must be the same used on Yahoo Finance.
+
 No plans are made to include other currencies outside of USD, CAD at this point.
 
 The following functions are inside the file IndexBuilder-deprecated:
